@@ -1,5 +1,5 @@
 """
-Application Notifications - Système de notifications Iltizam
+Application Notifications - Système de notifications iltizem
 Gère l'envoi d'emails, SMS et rappels automatiques
 """
 

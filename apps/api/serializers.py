@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from associations.models import Association
-from cotisations.models import Cotisation
-from paiements.models import Paiement
+from apps.associations.models import Association
+from apps.cotisations.models import Cotisation
+from apps.paiements.models import Paiement
 
 
 class AssociationSerializer(serializers.ModelSerializer):

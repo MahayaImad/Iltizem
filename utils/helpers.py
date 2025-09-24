@@ -33,7 +33,7 @@ def envoyer_notification_email(destinataire, template, context, sujet):
         send_mail(
             sujet,
             message_text,
-            'noreply@iltizam.dz',
+            'noreply@iltizem.dz',
             [destinataire],
             html_message=message_html,
             fail_silently=False

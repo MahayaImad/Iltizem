@@ -9,8 +9,8 @@ from io import BytesIO
 from datetime import date
 
 from .models import Paiement
-from cotisations.models import Cotisation
-from associations.models import Association
+from apps.cotisations.models import Cotisation
+from apps.associations.models import Association
 
 
 @login_required

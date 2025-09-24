@@ -7,7 +7,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ['username', 'email', 'role', 'date_creation']
     list_filter = ['role', 'is_active']
     fieldsets = UserAdmin.fieldsets + (
-        ('Informations Iltizam', {'fields': ('role', 'telephone')}),
+        ('Informations iltizem', {'fields': ('role', 'telephone')}),
     )
 
 @admin.register(Association)

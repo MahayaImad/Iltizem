@@ -11,10 +11,10 @@ from celery import Celery
 from django.conf import settings
 
 # Définir le module de configuration Django par défaut pour Celery
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iltizam.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iltizem.settings')
 
 # Créer l'instance Celery
-app = Celery('iltizam')
+app = Celery('iltizem')
 
 # Configuration à partir des settings Django avec le préfixe CELERY
 app.config_from_object('django.conf:settings', namespace='CELERY')

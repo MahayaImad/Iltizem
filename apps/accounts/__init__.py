@@ -1,5 +1,5 @@
 """
-Application Accounts - Gestion des utilisateurs Iltizam
+Application Accounts - Gestion des utilisateurs iltizem
 Gère l'authentification et les profils utilisateurs
 """
 

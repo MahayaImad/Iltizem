@@ -153,7 +153,7 @@ def user_info_api(request):
         # Informations spécifiques selon le rôle
         if user.role == 'resident':
             try:
-                from associations.models import Logement
+                from apps.associations.models import Logement
                 logement = Logement.objects.get(resident=user)
                 data['logement'] = {
                     'numero': logement.numero,
@@ -165,7 +165,7 @@ def user_info_api(request):
 
         elif user.role == 'admin_association':
             try:
-                from associations.models import Association
+                from apps.associations.models import Association
                 association = Association.objects.get(admin_principal=user)
                 data['association'] = {
                     'nom': association.nom,

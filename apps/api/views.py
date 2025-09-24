@@ -2,11 +2,13 @@ from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Sum, Count
+from .serializers import AssociationSerializer, Association, PaiementSerializer, CotisationSerializer, Cotisation, Paiement, serializers
 
 
 class AssociationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = AssociationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Association.objects.all()
 
     def get_queryset(self):
         if self.request.user.role == 'super_admin':
@@ -19,6 +21,7 @@ class AssociationViewSet(viewsets.ReadOnlyModelViewSet):
 class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CotisationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Association.objects.all()
 
     def get_queryset(self):
         user = self.request.user
@@ -32,6 +35,7 @@ class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
 class PaiementViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PaiementSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Association.objects.all()
 
     def get_queryset(self):
         user = self.request.user

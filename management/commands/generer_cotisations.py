@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from datetime import date, timedelta
-from associations.models import Association
-from cotisations.models import TypeCotisation, Cotisation
+from apps.associations.models import Association
+from apps.cotisations.models import TypeCotisation, Cotisation
 
 
 class Command(BaseCommand):

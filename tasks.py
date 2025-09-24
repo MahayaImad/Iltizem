@@ -39,7 +39,7 @@ def envoyer_rappels_automatiques():
                 send_mail(
                     sujet,
                     message,
-                    'noreply@iltizam.dz',
+                    'noreply@iltizem.dz',
                     [resident.email],
                     html_message=message
                 )
@@ -52,8 +52,8 @@ def envoyer_rappels_automatiques():
 @shared_task
 def generer_cotisations_automatiques():
     """Générer automatiquement les cotisations mensuelles"""
-    from associations.models import Association
-    from cotisations.models import TypeCotisation
+    from apps.associations.models import Association
+    from apps.cotisations.models import TypeCotisation
     from dateutil.relativedelta import relativedelta
 
     today = date.today()

@@ -6,8 +6,8 @@ from django.utils.translation import gettext_lazy as _
 User = get_user_model()
 
 
-class IltizamTokenAuthentication(TokenAuthentication):
-    """Authentification par token personnalisée pour Iltizam"""
+class iltizemTokenAuthentication(TokenAuthentication):
+    """Authentification par token personnalisée pour iltizem"""
 
     keyword = 'Bearer'  # Utiliser Bearer au lieu de Token
 
@@ -22,7 +22,7 @@ class IltizamTokenAuthentication(TokenAuthentication):
         if not token.user.is_active:
             raise AuthenticationFailed(_('Utilisateur inactif ou supprimé.'))
 
-        # Vérifications supplémentaires pour Iltizam
+        # Vérifications supplémentaires pour iltizem
         if token.user.role not in ['super_admin', 'admin_association', 'resident']:
             raise AuthenticationFailed(_('Rôle utilisateur invalide.'))
 

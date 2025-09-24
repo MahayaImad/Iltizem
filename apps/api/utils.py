@@ -6,8 +6,8 @@ from datetime import datetime, date
 import json
 
 
-class IltizamJSONEncoder(DjangoJSONEncoder):
-    """Encodeur JSON personnalisé pour Iltizam"""
+class iltizemJSONEncoder(DjangoJSONEncoder):
+    """Encodeur JSON personnalisé pour iltizem"""
 
     def default(self, obj):
         if isinstance(obj, (datetime, date)):

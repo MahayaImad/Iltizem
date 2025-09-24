@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.contrib import messages
-from associations.models import Association
+from apps.associations.models import Association
 
 
 class AssociationMiddleware:

@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Rapport',
                 'verbose_name_plural': 'Rapports',
-                'db_table': 'iltizam_rapports',
+                'db_table': 'iltizem_rapports',
                 'ordering': ['-date_generation'],
             },
         ),

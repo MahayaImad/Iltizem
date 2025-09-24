@@ -15,7 +15,7 @@ class CustomUserAdmin(UserAdmin):
 
     # Grouper les champs dans l'interface d'édition
     fieldsets = UserAdmin.fieldsets + (
-        ('Informations Iltizam', {
+        ('Informations iltizem', {
             'fields': ('role', 'telephone'),
             'classes': ('wide',)
         }),
@@ -23,7 +23,7 @@ class CustomUserAdmin(UserAdmin):
 
     # Champs pour la création d'utilisateur
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Informations Iltizam', {
+        ('Informations iltizem', {
             'fields': ('email', 'first_name', 'last_name', 'role', 'telephone'),
             'classes': ('wide',)
         }),

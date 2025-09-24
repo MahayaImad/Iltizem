@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from .models import Cotisation, TypeCotisation
-from associations.models import Association
+from apps.associations.models import Association
 
 
 @login_required

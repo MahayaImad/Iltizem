@@ -1,5 +1,5 @@
 """
-Application API - API REST pour Iltizam
+Application API - API REST pour iltizem
 Fournit des endpoints REST pour les applications mobiles et intégrations
 """
 

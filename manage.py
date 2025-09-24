@@ -1,5 +1,5 @@
 """
-Utilitaire de ligne de commande administrative Django pour Iltizam.
+Utilitaire de ligne de commande administrative Django pour iltizem.
 
 Ce script permet d'exécuter les commandes de gestion Django :
 - python manage.py runserver : Lancer le serveur de développement
@@ -17,7 +17,7 @@ import sys
 
 if __name__ == '__main__':
     # Définir le module de configuration Django par défaut
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iltizam.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iltizem.settings')
 
     try:
         from django.core.management import execute_from_command_line

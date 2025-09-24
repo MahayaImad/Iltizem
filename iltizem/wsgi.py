@@ -1,5 +1,5 @@
 """
-Configuration WSGI pour le projet iltizam.
+Configuration WSGI pour le projet iltizem.
 
 Ce module contient l'application WSGI utilisée par les serveurs web
 compatibles WSGI pour servir votre projet.
@@ -12,7 +12,7 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 # Définir le module de configuration Django par défaut
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iltizam.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iltizem.settings')
 
 # Créer l'application WSGI
 application = get_wsgi_application()

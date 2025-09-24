@@ -8,15 +8,15 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            "CREATE INDEX idx_paiement_methode ON iltizam_paiements(methode);",
-            reverse_sql="DROP INDEX idx_paiement_methode ON iltizam_paiements;"
+            "CREATE INDEX idx_paiement_methode ON iltizem_paiements(methode);",
+            reverse_sql="DROP INDEX idx_paiement_methode ON iltizem_paiements;"
         ),
         migrations.RunSQL(
-            "CREATE INDEX idx_paiement_date ON iltizam_paiements(date_paiement);",
-            reverse_sql="DROP INDEX idx_paiement_date ON iltizam_paiements;"
+            "CREATE INDEX idx_paiement_date ON iltizem_paiements(date_paiement);",
+            reverse_sql="DROP INDEX idx_paiement_date ON iltizem_paiements;"
         ),
         migrations.RunSQL(
-            "CREATE INDEX idx_paiement_enregistrement ON iltizam_paiements(date_enregistrement);",
-            reverse_sql="DROP INDEX idx_paiement_enregistrement ON iltizam_paiements;"
+            "CREATE INDEX idx_paiement_enregistrement ON iltizem_paiements(date_enregistrement);",
+            reverse_sql="DROP INDEX idx_paiement_enregistrement ON iltizem_paiements;"
         ),
     ]

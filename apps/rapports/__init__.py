@@ -1,5 +1,5 @@
 """
-Application Rapports - Génération de rapports Iltizam
+Application Rapports - Génération de rapports iltizem
 Gère la génération de rapports PDF, Excel et CSV
 """
 

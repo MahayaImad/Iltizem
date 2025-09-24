@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.admin import TokenAdmin as BaseTokenAdmin
+from django.contrib.admin.sites import NotRegistered
 
 
 # Personnaliser l'admin des tokens
@@ -67,6 +68,11 @@ class TokenAdmin(BaseTokenAdmin):
     regenerer_tokens.short_description = "Régénérer les tokens sélectionnés"
 
 
-# Désinscrire l'admin par défaut et réinscrire le nôtre
-admin.site.unregister(Token)
+# ✅ Désinscrire l'admin par défaut en toute sécurité
+try:
+    admin.site.unregister(Token)
+except NotRegistered:
+    pass
+
+# Réinscrire avec notre TokenAdmin
 admin.site.register(Token, TokenAdmin)

@@ -1,5 +1,5 @@
 """
-Application Residents - Espace résidents Iltizam
+Application Residents - Espace résidents iltizem
 Interface pour que les résidents consultent leurs cotisations et paiements
 """
 

@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Paiement',
                 'verbose_name_plural': 'Paiements',
-                'db_table': 'iltizam_paiements',
+                'db_table': 'iltizem_paiements',
                 'ordering': ['-date_enregistrement'],
             },
         ),

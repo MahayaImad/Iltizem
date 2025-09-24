@@ -271,7 +271,7 @@ def telecharger_reçu(request, paiement_id):
     # Signature
     y -= 40
     p.drawString(50, y, f"Reçu généré le {date.today().strftime('%d/%m/%Y')}")
-    p.drawString(50, y - 20, "Signature électronique - Plateforme Iltizam")
+    p.drawString(50, y - 20, "Signature électronique - Plateforme iltizem")
 
     p.showPage()
     p.save()
@@ -376,7 +376,7 @@ Message :
 {form.cleaned_data['message']}
 
 ---
-Message envoyé depuis la plateforme Iltizam
+Message envoyé depuis la plateforme iltizem
             """
 
             try:

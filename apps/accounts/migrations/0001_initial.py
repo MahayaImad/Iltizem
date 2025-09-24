@@ -1,7 +1,7 @@
 from django.db import migrations, models
 import django.contrib.auth.models
 import django.contrib.auth.validators
-import django.utils.timezone
+from django.utils import timezone
 
 class Migration(migrations.Migration):
 
@@ -28,14 +28,14 @@ class Migration(migrations.Migration):
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('role', models.CharField(choices=[('super_admin', 'Super Admin'), ('admin_association', 'Admin Association'), ('resident', 'Résident')], default='resident', max_length=20, verbose_name='Rôle')),
                 ('telephone', models.CharField(blank=True, max_length=15, verbose_name='Téléphone')),
-                ('date_creation', models.DateTimeField(auto_now_add=True, verbose_name='Date de création')),
+                ('date_creation', models.DateTimeField(default=timezone.now, editable=False,verbose_name='Date de création')),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
             ],
             options={
                 'verbose_name': 'Utilisateur',
                 'verbose_name_plural': 'Utilisateurs',
-                'db_table': 'iltizam_users',
+                'db_table': 'iltizem_users',
             },
             managers=[
                 ('objects', django.contrib.auth.models.UserManager()),

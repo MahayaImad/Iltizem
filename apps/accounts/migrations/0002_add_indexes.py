@@ -8,11 +8,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            "CREATE INDEX idx_user_role ON iltizam_users(role);",
-            reverse_sql="DROP INDEX idx_user_role ON iltizam_users;"
+            "CREATE INDEX idx_user_role ON iltizem_users(role);",
+            reverse_sql="DROP INDEX idx_user_role ON iltizem_users;"
         ),
         migrations.RunSQL(
-            "CREATE INDEX idx_user_active_role ON iltizam_users(is_active, role);",
-            reverse_sql="DROP INDEX idx_user_active_role ON iltizam_users;"
+            "CREATE INDEX idx_user_active_role ON iltizem_users(is_active, role);",
+            reverse_sql="DROP INDEX idx_user_active_role ON iltizem_users;"
         ),
     ]

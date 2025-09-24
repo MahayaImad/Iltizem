@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+from django.utils import timezone
 
 class Migration(migrations.Migration):
 
@@ -20,13 +21,13 @@ class Migration(migrations.Migration):
                 ('nombre_logements', models.PositiveIntegerField(verbose_name='Nombre de logements')),
                 ('plan', models.CharField(choices=[('basique', 'Basique'), ('silver', 'Silver'), ('gold', 'Gold')], default='basique', max_length=10, verbose_name='Plan')),
                 ('actif', models.BooleanField(default=True, verbose_name='Actif')),
-                ('date_creation', models.DateTimeField(auto_now_add=True, verbose_name='Date de création')),
+                ('date_creation', models.DateTimeField(default=timezone.now, editable=False, verbose_name='Date de création')),
                 ('admin_principal', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='association_administree', to=settings.AUTH_USER_MODEL, verbose_name='Administrateur principal')),
             ],
             options={
                 'verbose_name': 'Association',
                 'verbose_name_plural': 'Associations',
-                'db_table': 'iltizam_associations',
+                'db_table': 'iltizem_associations',
                 'ordering': ['nom'],
             },
         ),
@@ -42,7 +43,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Logement',
                 'verbose_name_plural': 'Logements',
-                'db_table': 'iltizam_logements',
+                'db_table': 'iltizem_logements',
                 'ordering': ['association', 'numero'],
             },
         ),

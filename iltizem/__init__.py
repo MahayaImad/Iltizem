@@ -1,5 +1,5 @@
 """
-Initialisation du projet Django Iltizam
+Initialisation du projet Django iltizem
 Configuration Celery pour les tâches asynchrones
 """
 

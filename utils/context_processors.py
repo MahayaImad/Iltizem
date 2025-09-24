@@ -1,13 +1,13 @@
 from django.conf import settings
 
 
-def iltizam_context(request):
+def iltizem_context(request):
     """Variables globales pour les templates"""
     context = {
         'THEME_COLORS': getattr(settings, 'THEME_COLORS', {}),
-        'APP_NAME': 'Iltizam',
+        'APP_NAME': 'iltizem',
         'APP_VERSION': '1.0.0',
-        'SUPPORT_EMAIL': 'support@iltizam.dz',
+        'SUPPORT_EMAIL': 'support@iltizem.dz',
     }
 
     if request.user.is_authenticated:
@@ -15,7 +15,7 @@ def iltizam_context(request):
 
         if request.user.role == 'admin_association':
             try:
-                from associations.models import Association
+                from apps.associations.models import Association
                 context['user_association'] = Association.objects.get(
                     admin_principal=request.user
                 )

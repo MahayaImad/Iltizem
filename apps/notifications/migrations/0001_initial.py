@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+from django.utils import timezone
 
 class Migration(migrations.Migration):
 
@@ -21,12 +22,12 @@ class Migration(migrations.Migration):
                 ('sujet', models.CharField(max_length=200, verbose_name='Sujet')),
                 ('contenu', models.TextField(verbose_name='Contenu')),
                 ('actif', models.BooleanField(default=True, verbose_name='Actif')),
-                ('date_creation', models.DateTimeField(auto_now_add=True, verbose_name='Date de création')),
+                ('date_creation', models.DateTimeField(default=timezone.now, editable=False, verbose_name='Date de création')),
             ],
             options={
                 'verbose_name': 'Template de notification',
                 'verbose_name_plural': 'Templates de notifications',
-                'db_table': 'iltizam_notification_templates',
+                'db_table': 'iltizem_notification_templates',
                 'ordering': ['nom'],
             },
         ),
@@ -48,7 +49,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Log de notification',
                 'verbose_name_plural': 'Logs de notifications',
-                'db_table': 'iltizam_notification_logs',
+                'db_table': 'iltizem_notification_logs',
                 'ordering': ['-date_envoi'],
             },
         ),

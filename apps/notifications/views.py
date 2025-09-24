@@ -364,8 +364,8 @@ def test_email(request):
 
     try:
         send_mail(
-            subject='Test Iltizam - Configuration Email',
-            message='Ceci est un test de configuration email depuis la plateforme Iltizam.',
+            subject='Test iltizem - Configuration Email',
+            message='Ceci est un test de configuration email depuis la plateforme iltizem.',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[request.user.email],
             fail_silently=False

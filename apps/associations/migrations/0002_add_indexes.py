@@ -8,15 +8,15 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            "CREATE INDEX idx_association_plan_actif ON iltizam_associations(plan, actif);",
-            reverse_sql="DROP INDEX idx_association_plan_actif ON iltizam_associations;"
+            "CREATE INDEX idx_association_plan_actif ON iltizem_associations(plan, actif);",
+            reverse_sql="DROP INDEX idx_association_plan_actif ON iltizem_associations;"
         ),
         migrations.RunSQL(
-            "CREATE INDEX idx_logement_association ON iltizam_logements(association_id);",
-            reverse_sql="DROP INDEX idx_logement_association ON iltizam_logements;"
+            "CREATE INDEX idx_logement_association ON iltizem_logements(association_id);",
+            reverse_sql="DROP INDEX idx_logement_association ON iltizem_logements;"
         ),
         migrations.RunSQL(
-            "CREATE INDEX idx_logement_resident ON iltizam_logements(resident_id);",
-            reverse_sql="DROP INDEX idx_logement_resident ON iltizam_logements;"
+            "CREATE INDEX idx_logement_resident ON iltizem_logements(resident_id);",
+            reverse_sql="DROP INDEX idx_logement_resident ON iltizem_logements;"
         ),
     ]

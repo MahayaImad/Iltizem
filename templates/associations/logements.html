@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Logements - {{ association.nom }}{% endblock %}
+
+{% block content %}
+  <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-5 mb-2">{{ association.nom }}</h1>
+                        <p class="text-muted">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ association.adresse }}
+                            <span class="badge bg-primary ms-2">Plan {{ association.get_plan_display }}</span>
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'associations:parametres' %}" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-cog me-1"></i>Paramètres
+                        </a>
+                        <a href="{% url 'paiements:enregistrer_nouveau' %}" class="btn btn-iltizam">
+                            <i class="fas fa-plus me-1"></i>Nouveau Paiement
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-gradient rounded-circle p-3 me-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-home text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">{{ stats.total_logements }}</h3>
+                            <p class="text-muted mb-0">Logements</p>
+                            <small class="text-success">
+                                <i class="fas fa-arrow-up me-1"></i>{{ stats.taux_occupation }}% occupés
+                            </small>
+                        </div>
+                    </div>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div class="progress-bar bg-primary" role="progressbar"
+                             style="width: {{ stats.taux_occupation }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success bg-gradient rounded-circle p-3 me-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-coins text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">{{ stats.total_paye|format_montant }}</h3>
+                            <p class="text-muted mb-0">Collecté ce mois</p>
+                            <small class="text-info">
+                                <i class="fas fa-chart-line me-1"></i>{{ stats.taux_recouvrement }}% du total
+                            </small>
+                        </div>
+                    </div>
+                    <div class="progress mt-3" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: {{ stats.taux_recouvrement }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning bg-gradient rounded-circle p-3 me-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-clock text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">{{ stats.total_attendu|floatformat:0|subtract:stats.total_paye|floatformat:0|format_montant }}</h3>
+                            <p class="text-muted mb-0">En attente</p>
+                            <small class="text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>{{ cotisations_impayees.count }} cotisations
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card p-4 h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-info bg-gradient rounded-circle p-3 me-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-users text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">{{ stats.logements_occupes }}</h3>
+                            <p class="text-muted mb-0">Résidents actifs</p>
+                            <small class="text-primary">
+                                <i class="fas fa-user-check me-1"></i>Enregistrés
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique et Actions Rapides -->
+        <div class="row g-4 mb-5">
+            <!-- Graphique des paiements -->
+            <div class="col-lg-8">
+                <div class="stat-card p-4 h-100">
+                    <h5 class="mb-4">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>Évolution des Paiements
+                    </h5>
+                    {% if association.plan == 'basique' %}
+                    <div style="height: 300px;" class="d-flex align-items-center justify-content-center bg-light rounded">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted mb-3">Graphiques disponibles dans les plans Silver et Gold</h5>
+                            <a href="#" class="btn btn-sm btn-outline-primary">Upgrader le plan</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <canvas id="paymentsChart" style="height: 300px;"></canvas>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions Rapides -->
+            <div class="col-lg-4">
+                <div class="stat-card p-4 h-100">
+                    <h5 class="mb-4">
+                        <i class="fas fa-bolt text-primary me-2"></i>Actions Rapides
+                    </h5>
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'cotisations:generer' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Générer Cotisations
+                        </a>
+                        <a href="{% url 'paiements:import' %}" class="btn btn-outline-success">
+                            <i class="fas fa-upload me-2"></i>Importer Paiements
+                        </a>
+                        <a href="{% url 'rapports:generer' %}" class="btn btn-outline-info">
+                            <i class="fas fa-file-alt me-2"></i>Nouveau Rapport
+                        </a>
+                        <a href="{% url 'notifications:envoyer_rappels' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-bell me-2"></i>Envoyer Rappels
+                        </a>
+                        <a href="{% url 'associations:logements' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Gérer Logements
+                        </a>
+                    </div>
+
+                    <!-- Alertes -->
+                    {% if cotisations_impayees.count > 0 %}
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>{{ cotisations_impayees.count }}</strong> cotisation(s) impayée(s)
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des Cotisations Impayées -->
+        {% if cotisations_impayees %}
+        <div class="row">
+            <div class="col-12">
+                <div class="stat-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Cotisations Impayées ({{ cotisations_impayees.count }})
+                        </h5>
+                        <a href="{% url 'cotisations:liste' %}?statut=impayee" class="btn btn-sm btn-outline-primary">
+                            Voir toutes
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Logement</th>
+                                    <th>Résident</th>
+                                    <th>Période</th>
+                                    <th>Montant</th>
+                                    <th>Échéance</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cotisation in cotisations_impayees|slice:":10" %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">{{ cotisation.logement.numero }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if cotisation.logement.resident %}
+                                            {{ cotisation.logement.resident.get_full_name|default:cotisation.logement.resident.username }}
+                                        {% else %}
+                                            <span class="text-muted">Non assigné</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ cotisation.periode|date:"M Y" }}</td>
+                                    <td>
+                                        <strong>{{ cotisation.montant|format_montant }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="{% if cotisation.statut == 'retard' %}text-danger{% endif %}">
+                                            {{ cotisation.date_echeance|date:"d/m/Y" }}
+                                        </span>
+                                        {% if cotisation.statut == 'retard' %}
+                                        <br><small class="text-danger">
+                                            {{ cotisation.date_echeance|jours_depuis_echeance }} jour(s) de retard
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ cotisation.statut|statut_badge }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'paiements:enregistrer' cotisation.id %}"
+                                               class="btn btn-outline-success" title="Enregistrer paiement">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            <a href="{% url 'notifications:rappel_individuel' cotisation.id %}"
+                                               class="btn btn-outline-warning" title="Envoyer rappel">
+                                                <i class="fas fa-bell"></i>
+                                            </a>
+                                            <a href="{% url 'cotisations:details' cotisation.id %}"
+                                               class="btn btn-outline-info" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if cotisations_impayees.count > 10 %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'cotisations:liste' %}?statut=impayee" class="btn btn-primary">
+                            Voir les {{ cotisations_impayees.count|add:"-10" }} autres cotisations impayées
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if association.plan != 'basique' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Graphique des paiements (uniquement pour Silver et Gold)
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('paymentsChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Paiements collectés (DA)',
+                    data: [125000, 135000, 128000, 145000, 152000, 148000],
+                    borderColor: '#06A3DA',
+                    backgroundColor: 'rgba(6, 163, 218, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' DA';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

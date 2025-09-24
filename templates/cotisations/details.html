@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load residents_extras %}
+
+{% block title %}Détails Cotisation - {{ cotisation.logement.numero }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="display-6 mb-2">Cotisation {{ cotisation.logement.numero }}</h1>
+                                <p class="text-muted">
+                                    <i class="fas fa-calendar me-2"></i>{{ cotisation.periode|date:"F Y" }}
+                                    {{ cotisation.statut|statut_badge }}
+                                </p>
+                            </div>
+                            <div>
+                                <a href="{% url 'cotisations:liste' %}" class="btn btn-outline-secondary me-2">
+                                    <i class="fas fa-arrow-left me-1"></i>Retour
+                                </a>
+                                {% if cotisation.statut != 'payee' %}
+                                <a href="{% url 'paiements:enregistrer' cotisation.id %}" class="btn btn-iltizam">
+                                    <i class="fas fa-check me-1"></i>Enregistrer Paiement
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Informations de la Cotisation -->
+                    <div class="col-lg-6">
+                        <div class="stat-card p-4 h-100">
+                            <h5 class="mb-4">
+                                <i class="fas fa-info-circle text-primary me-2"></i>Détails de la Cotisation
+                            </h5>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="text-muted small">Logement</label>
+                                    <p class="fw-bold">{{ cotisation.logement.numero }}</p>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="text-muted small">Résident</label>
+                                    {% if cotisation.logement.resident %}
+                                    <p class="fw-bold">{{ cotisation.logement.resident.get_full_name|default:cotisation.logement.resident.username }}</p>
+                                    {% if cotisation.logement.resident.email %}
+                                    <small class="text-muted d-block">{{ cotisation.logement.resident.email }}</small>
+                                    {% endif %}
+                                    {% if cotisation.logement.resident.telephone %}
+                                    <small class="text-muted d-block">{{ cotisation.logement.resident.telephone }}</small>
+                                    {% endif %}
+                                    {% else %}
+                                    <p class="text-muted">Non assigné</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Type de cotisation</label>
+                                    <p class="fw-bold">{{ cotisation.type_cotisation.nom }}</p>
+                                    <span class="badge bg-light text-dark">{{ cotisation.type_cotisation.get_periodicite_display }}</span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Période</label>
+                                    <p class="fw-bold">{{ cotisation.periode|date:"F Y" }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Montant</label>
+                                    <p class="fw-bold text-primary fs-4">{{ cotisation.montant|format_montant }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Date d'échéance</label>
+                                    <p class="fw-bold {% if cotisation.statut == 'retard' %}text-danger{% endif %}">
+                                        {{ cotisation.date_echeance|date:"d/m/Y" }}
+                                    </p>
+                                    {% if cotisation.statut == 'retard' %}
+                                    <small class="text-danger">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        {{ cotisation.date_echeance|jours_depuis_echeance }} jour(s) de retard
+                                    </small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="text-muted small">Statut</label>
+                                    <p>{{ cotisation.statut|statut_badge }}</p>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="text-muted small">Date de création</label>
+                                    <p class="fw-bold">{{ cotisation.date_creation|date:"d/m/Y à H:i" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informations du Paiement (si payée) -->
+                    <div class="col-lg-6">
+                        {% if cotisation.statut == 'payee' and cotisation.paiement %}
+                        <div class="stat-card p-4 h-100 border-start border-success border-4">
+                            <h5 class="mb-4">
+                                <i class="fas fa-check-circle text-success me-2"></i>Paiement Effectué
+                            </h5>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="text-muted small">Montant payé</label>
+                                    <p class="fw-bold text-success fs-4">{{ cotisation.paiement.montant|format_montant }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Méthode</label>
+                                    <p class="fw-bold">
+                                        {{ cotisation.paiement.methode|methode_paiement_icon }}
+                                        {{ cotisation.paiement.get_methode_display }}
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Date de paiement</label>
+                                    <p class="fw-bold">{{ cotisation.paiement.date_paiement|date:"d/m/Y" }}</p>
+                                </div>
+
+                                {% if cotisation.paiement.reference %}
+                                <div class="col-12">
+                                    <label class="text-muted small">Référence</label>
+                                    <p class="fw-bold">{{ cotisation.paiement.reference }}</p>
+                                </div>
+                                {% endif %}
+
+                                <div class="col-12">
+                                    <label class="text-muted small">Enregistré par</label>
+                                    <p class="fw-bold">{{ cotisation.paiement.enregistre_par.get_full_name|default:cotisation.paiement.enregistre_par.username }}</p>
+                                    <small class="text-muted">{{ cotisation.paiement.date_enregistrement|date:"d/m/Y à H:i" }}</small>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="text-muted small">Reçu</label>
+                                    {% if cotisation.paiement.recu_genere %}
+                                    <p>
+                                        <span class="badge bg-success me-2">Généré</span>
+                                        <a href="{% url 'paiements:telecharger_recu' cotisation.paiement.id %}"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-download me-1"></i>Télécharger
+                                        </a>
+                                    </p>
+                                    {% else %}
+                                    <p>
+                                        <span class="badge bg-warning me-2">Non généré</span>
+                                        <a href="{% url 'paiements:generer_recu' cotisation.paiement.id %}"
+                                           class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-file-pdf me-1"></i>Générer
+                                        </a>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Actions possibles si non payée -->
+                        <div class="stat-card p-4 h-100 border-start border-warning border-4">
+                            <h5 class="mb-4">
+                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>Actions Disponibles
+                            </h5>
+
+                            <div class="d-grid gap-3">
+                                {% if cotisation.statut != 'payee' %}
+                                <a href="{% url 'paiements:enregistrer' cotisation.id %}" class="btn btn-success">
+                                    <i class="fas fa-check me-2"></i>Enregistrer un Paiement
+                                </a>
+                                {% endif %}
+
+                                {% if cotisation.logement.resident and cotisation.logement.resident.email %}

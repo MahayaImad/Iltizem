@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load residents_extras %}
+
+{% block title %}Tableau de Bord - {{ association.nom }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-5 mb-2">Gestion des Logements</h1>
+                        <p class="text-muted">
+                            <i class="fas fa-building me-2"></i>{{ association.nom }}
+                            <span class="badge bg-secondary ms-2">{{ logements.count }} logements</span>
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'associations:nouveau_logement' %}" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-plus me-1"></i>Nouveau Logement
+                        </a>
+                        <a href="{% url 'associations:creation_bulk' %}" class="btn btn-iltizam">
+                            <i class="fas fa-layer-group me-1"></i>Création en Masse
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center">
+                    <h4 class="text-primary mb-1">{{ stats.total_logements }}</h4>
+                    <small class="text-muted">Total logements</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center">
+                    <h4 class="text-success mb-1">{{ stats.logements_occupes }}</h4>
+                    <small class="text-muted">Occupés</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center">
+                    <h4 class="text-warning mb-1">{{ stats.logements_libres }}</h4>
+                    <small class="text-muted">Libres</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center">
+                    <h4 class="text-info mb-1">{{ stats.taux_occupation }}%</h4>
+                    <small class="text-muted">Taux d'occupation</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et Recherche -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="stat-card p-4">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">Rechercher</label>
+                            <input type="text" name="search" class="form-control"
+                                   placeholder="N° logement ou nom résident"
+                                   value="{{ request.GET.search }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Statut</label>
+                            <select name="statut" class="form-select">
+                                <option value="">Tous</option>
+                                <option value="occupe" {% if request.GET.statut == 'occupe' %}selected{% endif %}>Occupé</option>
+                                <option value="libre" {% if request.GET.statut == 'libre' %}selected{% endif %}>Libre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Trier par</label>
+                            <select name="sort" class="form-select">
+                                <option value="numero">Numéro</option>
+                                <option value="-numero" {% if request.GET.sort == '-numero' %}selected{% endif %}>Numéro (desc)</option>
+                                <option value="superficie" {% if request.GET.sort == 'superficie' %}selected{% endif %}>Superficie</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Filtrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des Logements -->
+        <div class="row">
+            <div class="col-12">
+                <div class="stat-card p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>N° Logement</th>
+                                    <th>Résident</th>
+                                    <th>Superficie</th>
+                                    <th>Statut</th>
+                                    <th>Cotisations</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for logement in logements %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">{{ logement.numero }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if logement.resident %}
+                                            <div>
+                                                <strong>{{ logement.resident.get_full_name|default:logement.resident.username }}</strong>
+                                                {% if logement.resident.email %}
+                                                <br><small class="text-muted">{{ logement.resident.email }}</small>
+                                                {% endif %}
+                                                {% if logement.resident.telephone %}
+                                                <br><small class="text-muted">{{ logement.resident.telephone }}</small>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Non assigné</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if logement.superficie %}
+                                            {{ logement.superficie }} m²
+                                        {% else %}
+                                            <span class="text-muted">Non renseignée</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if logement.resident %}
+                                            <span class="badge bg-success badge-custom">Occupé</span>
+                                        {% else %}
+                                            <span class="badge bg-warning badge-custom">Libre</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                <small class="text-success">{{ logement.cotisations_payees }} payées</small>
+                                                <br><small class="text-danger">{{ logement.cotisations_impayees }} impayées</small>
+                                            </div>
+                                            {% if logement.cotisations_impayees > 0 %}
+                                            <i class="fas fa-exclamation-triangle text-warning"></i>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'associations:modifier_logement' logement.id %}"
+                                               class="btn btn-outline-primary" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if not logement.resident %}
+                                            <a href="{% url 'associations:assigner_resident' logement.id %}"
+                                               class="btn btn-outline-success" title="Assigner résident">
+                                                <i class="fas fa-user-plus"></i>
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'associations:liberer_logement' logement.id %}"
+                                               class="btn btn-outline-warning" title="Libérer logement">
+                                                <i class="fas fa-user-minus"></i>
+                                            </a>
+                                            {% endif %}
+                                            <a href="{% url 'cotisations:logement_details' logement.id %}"
+                                               class="btn btn-outline-info" title="Voir cotisations">
+                                                <i class="fas fa-money-bill"></i>
+                                            </a>
+                                            <a href="{% url 'associations:supprimer_logement' logement.id %}"
+                                               class="btn btn-outline-danger" title="Supprimer"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce logement ?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">Aucun logement trouvé</h5>
+                                        <p class="text-muted">Commencez par créer vos premiers logements</p>
+                                        <a href="{% url 'associations:nouveau_logement' %}" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Créer un logement
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if logements.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if logements.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ logements.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}">
+                                    Précédent
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in logements.paginator.page_range %}
+                            {% if logements.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > logements.number|add:'-3' and num < logements.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if logements.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ logements.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}">
+                                    Suivant
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

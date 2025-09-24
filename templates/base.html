@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Iltizam - Gestion des Associations{% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Iltizam, gestion associations, cotisations, Algérie" name="keywords">
+    <meta content="Plateforme de gestion des associations de résidences en Algérie" name="description">
+
+    <!-- Favicon -->
+    <link href="{% load static %}{% static 'img/favicon.ico' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/animate/animate.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+    <!-- Custom Iltizam Styles -->
+    <style>
+        :root {
+            --primary-color: #06A3DA;
+            --secondary-color: #34AD54;
+            --dark-color: #091E3E;
+            --light-color: #EEF9FF;
+            --body-color: #6B6A75;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--dark-color), var(--primary-color));
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            margin: 2px 8px;
+            padding: 12px 16px;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: all 0.3s;
+        }
+
+        .main-content.shifted {
+            margin-left: 250px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .btn-iltizam {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-iltizam:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(6, 163, 218, 0.3);
+            color: white;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        .alert-custom {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table-custom {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .badge-custom {
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .main-content.shifted {
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner"></div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Sidebar Start -->
+    {% if user.is_authenticated %}
+    <div class="sidebar" id="sidebar">
+        <div class="d-flex flex-column p-3">
+            <!-- Logo -->
+            <div class="text-center mb-4 pt-3">
+                <h3 class="text-white mb-0">
+                    <i class="fa fa-building text-light me-2"></i>Iltizam
+                </h3>
+                <small class="text-light opacity-75">Gestion Associations</small>
+            </div>
+
+            <!-- User Info -->
+            <div class="text-center mb-4 p-3" style="background: rgba(255,255,255,0.1); border-radius: 10px;">
+                <div class="text-white mb-2">
+                    <i class="fas fa-user-circle fa-2x"></i>
+                </div>
+                <h6 class="text-white mb-1">{{ user.get_full_name|default:user.username }}</h6>
+                <small class="text-light opacity-75">{{ user.get_role_display }}</small>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="nav nav-pills flex-column">
+                {% if user.role == 'super_admin' %}
+                    <a href="{% url 'admin:index' %}" class="nav-link">
+                        <i class="fas fa-cog"></i>Administration
+                    </a>
+                    <a href="{% url 'associations:liste' %}" class="nav-link">
+                        <i class="fas fa-building"></i>Associations
+                    </a>
+                    <a href="{% url 'rapports:statistiques' %}" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>Statistiques
+                    </a>
+                {% elif user.role == 'admin_association' %}
+                    <a href="{% url 'associations:tableau_bord' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>Tableau de Bord
+                    </a>
+                    <a href="{% url 'associations:logements' %}" class="nav-link">
+                        <i class="fas fa-home"></i>Logements
+                    </a>
+                    <a href="{% url 'cotisations:liste' %}" class="nav-link">
+                        <i class="fas fa-money-bill"></i>Cotisations
+                    </a>
+                    <a href="{% url 'paiements:liste' %}" class="nav-link">
+                        <i class="fas fa-credit-card"></i>Paiements
+                    </a>
+                    <a href="{% url 'notifications:liste' %}" class="nav-link">
+                        <i class="fas fa-bell"></i>Notifications
+                    </a>
+                    <a href="{% url 'rapports:liste' %}" class="nav-link">
+                        <i class="fas fa-file-alt"></i>Rapports
+                    </a>
+                {% elif user.role == 'resident' %}
+                    <a href="{% url 'residents:tableau_bord' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>Mon Espace
+                    </a>
+                    <a href="{% url 'residents:cotisations' %}" class="nav-link">
+                        <i class="fas fa-money-bill"></i>Mes Cotisations
+                    </a>
+                    <a href="{% url 'residents:paiements' %}" class="nav-link">
+                        <i class="fas fa-credit-card"></i>Mes Paiements
+                    </a>
+                    <a href="{% url 'residents:reçus' %}" class="nav-link">
+                        <i class="fas fa-receipt"></i>Mes Reçus
+                    </a>
+                    <a href="{% url 'residents:contact' %}" class="nav-link">
+                        <i class="fas fa-envelope"></i>Contact Admin
+                    </a>
+                {% endif %}
+
+                <hr class="text-light opacity-25 my-3">
+
+                <a href="{% url 'accounts:profil' %}" class="nav-link">
+                    <i class="fas fa-user"></i>Mon Profil
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="nav-link text-warning">
+                    <i class="fas fa-sign-out-alt"></i>Déconnexion
+                </a>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Sidebar End -->
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Topbar Start -->
+        <div class="container-fluid bg-dark px-5 d-none d-lg-block">
+            <div class="row gx-0">
+                <div class="col-lg-8 text-center text-lg-start mb-2 mb-lg-0">
+                    <div class="d-inline-flex align-items-center" style="height: 45px;">
+                        <small class="me-3 text-light">
+                            <i class="fa fa-map-marker-alt me-2"></i>Algérie - Plateforme Nationale
+                        </small>
+                        <small class="me-3 text-light">
+                            <i class="fa fa-phone-alt me-2"></i>+213 XXX XXX XXX
+                        </small>
+                        <small class="text-light">
+                            <i class="fa fa-envelope-open me-2"></i>contact@iltizam.dz
+                        </small>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center text-lg-end">
+                    <div class="d-inline-flex align-items-center" style="height: 45px;">
+                        {% if user.is_authenticated %}
+                            <small class="me-3 text-light">
+                                <i class="fas fa-user me-2"></i>{{ user.get_full_name|default:user.username }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Topbar End -->
+
+        <!-- Navbar Start -->
+        <div class="container-fluid position-relative p-0">
+            <nav class="navbar navbar-expand-lg navbar-dark px-5 py-3 py-lg-0">
+                {% if user.is_authenticated %}
+                    <button class="btn btn-outline-light me-3" id="sidebar-toggle">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                {% endif %}
+
+                <a href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'home' %}{% endif %}" class="navbar-brand p-0">
+                    <h1 class="m-0">
+                        <i class="fa fa-building text-primary me-2"></i>Iltizam
+                    </h1>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto py-0">
+                        {% if not user.is_authenticated %}
+                            <a href="{% url 'home' %}" class="nav-item nav-link">Accueil</a>
+                            <a href="#apropos" class="nav-item nav-link">À Propos</a>
+                            <a href="#plans" class="nav-item nav-link">Plans</a>
+                            <a href="#contact" class="nav-item nav-link">Contact</a>
+                        {% endif %}
+                    </div>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary py-2 px-4 ms-3">Connexion</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+        <!-- Navbar End -->
+
+        <!-- Messages -->
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show alert-custom" role="alert">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer Start -->
+        <div class="container-fluid bg-dark text-light mt-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="row gx-5">
+                    <div class="col-lg-4 col-md-6 footer-about">
+                        <div class="d-flex flex-column align-items-center justify-content-center text-center h-100 bg-primary p-4">
+                            <a href="{% url 'home' %}" class="navbar-brand">
+                                <h1 class="m-0 text-white">
+                                    <i class="fa fa-building me-2"></i>Iltizam
+                                </h1>
+                            </a>
+                            <p class="mt-3 mb-4">
+                                Plateforme de gestion moderne pour les associations de résidences en Algérie.
+                                Transparence, engagement et efficacité.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-md-6">
+                        <div class="row gx-5">
+                            <div class="col-lg-4 col-md-12 pt-5 mb-5">
+                                <div class="section-title section-title-sm position-relative pb-3 mb-4">
+                                    <h3 class="text-light mb-0">Liens Rapides</h3>
+                                </div>
+                                <div class="link-animated d-flex flex-column justify-content-start">
+                                    <a class="text-light mb-2" href="{% url 'home' %}">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Accueil
+                                    </a>
+                                    <a class="text-light mb-2" href="#apropos">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>À Propos
+                                    </a>
+                                    <a class="text-light mb-2" href="#plans">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Plans & Tarifs
+                                    </a>
+                                    <a class="text-light mb-2" href="#contact">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Contact
+                                    </a>
+                                    {% if user.is_authenticated %}
+                                    <a class="text-light" href="{% url 'accounts:profil' %}">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Mon Profil
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-12 pt-5 mb-5">
+                                <div class="section-title section-title-sm position-relative pb-3 mb-4">
+                                    <h3 class="text-light mb-0">Plans</h3>
+                                </div>
+                                <div class="link-animated d-flex flex-column justify-content-start">
+                                    <a class="text-light mb-2" href="#plans">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Plan Basique
+                                    </a>
+                                    <a class="text-light mb-2" href="#plans">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Plan Silver
+                                    </a>
+                                    <a class="text-light mb-2" href="#plans">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Plan Gold
+                                    </a>
+                                    <a class="text-light mb-2" href="#plans">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Comparaison
+                                    </a>
+                                    <a class="text-light" href="#contact">
+                                        <i class="bi bi-arrow-right text-primary me-2"></i>Demander un devis
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-12 pt-5 mb-5">
+                                <div class="section-title section-title-sm position-relative pb-3 mb-4">
+                                    <h3 class="text-light mb-0">Contact</h3>
+                                </div>
+                                <div class="d-flex mb-2">
+                                    <i class="bi bi-geo-alt text-primary me-2"></i>
+                                    <p class="mb-0">Alger, Algérie</p>
+                                </div>
+                                <div class="d-flex mb-2">
+                                    <i class="bi bi-envelope-open text-primary me-2"></i>
+                                    <p class="mb-0">contact@iltizam.dz</p>
+                                </div>
+                                <div class="d-flex mb-2">
+                                    <i class="bi bi-telephone text-primary me-2"></i>
+                                    <p class="mb-0">+213 XXX XXX XXX</p>
+                                </div>
+                                <div class="d-flex mt-4">
+                                    <a class="btn btn-primary btn-square me-2" href="#">
+                                        <i class="fab fa-facebook-f fw-normal"></i>
+                                    </a>
+                                    <a class="btn btn-primary btn-square me-2" href="#">
+                                        <i class="fab fa-linkedin-in fw-normal"></i>
+                                    </a>
+                                    <a class="btn btn-primary btn-square" href="#">
+                                        <i class="fab fa-instagram fw-normal"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid text-white" style="background: #061429;">
+            <div class="container text-center">
+                <div class="row justify-content-end">
+                    <div class="col-lg-8 col-md-6">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 75px;">
+                            <p class="mb-0">&copy; 2024 Iltizam. Tous droits réservés.
+                            <a class="text-white border-bottom" href="#">Conditions d'utilisation</a> |
+                            <a class="text-white border-bottom" href="#">Politique de confidentialité</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+    </div>
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded back-to-top">
+        <i class="bi bi-arrow-up"></i>
+    </a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'lib/counterup/counterup.min.js' %}"></script>
+    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Custom Iltizam JavaScript -->
+    <script>
+        // Sidebar Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+
+            if (sidebarToggle && sidebar && mainContent) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    mainContent.classList.toggle('shifted');
+                });
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    if (window.innerWidth <= 768) {
+                        if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                            sidebar.classList.remove('active');
+                            mainContent.classList.remove('shifted');
+                        }
+                    }
+                });
+            }
+
+            // Auto highlight active nav link
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

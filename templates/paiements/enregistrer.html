@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enregistrer un Paiement - {{ cotisation.logement }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="stat-card p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="display-6 text-primary">
+                            <i class="fas fa-money-check-alt me-3"></i>Enregistrer un Paiement
+                        </h2>
+                        <p class="text-muted">Cotisation de {{ cotisation.logement.numero }} pour {{ cotisation.periode|date:"F Y" }}</p>
+                    </div>
+
+                    <!-- Informations de la cotisation -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="text-primary mb-2">Détails de la Cotisation</h6>
+                                <p class="mb-1"><strong>Logement :</strong> {{ cotisation.logement.numero }}</p>
+                                <p class="mb-1"><strong>Résident :</strong>
+                                    {{ cotisation.logement.resident.get_full_name|default:"Non assigné" }}
+                                </p>
+                                <p class="mb-1"><strong>Période :</strong> {{ cotisation.periode|date:"F Y" }}</p>
+                                <p class="mb-0"><strong>Montant dû :</strong>
+                                    <span class="text-success">{{ cotisation.montant|floatformat:0 }} DA</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="text-primary mb-2">Statut Actuel</h6>
+                                <p class="mb-1"><strong>Échéance :</strong> {{ cotisation.date_echeance|date:"d/m/Y" }}</p>
+                                <p class="mb-0"><strong>Statut :</strong>
+                                    <span class="badge bg-warning">{{ cotisation.get_statut_display }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire de paiement -->
+                    <form method="post" class="wow fadeInUp" data-wow-delay="0.1s">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Montant Payé *</label>
+                                <div class="input-group">
+                                    <input type="number" name="montant" class="form-control"
+                                           value="{{ cotisation.montant }}" step="0.01" min="0" required>
+                                    <span class="input-group-text">DA</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Méthode de Paiement *</label>
+                                <select name="methode" class="form-select" required>
+                                    <option value="">Choisir...</option>
+                                    <option value="especes">Espèces</option>
+                                    <option value="virement">Virement bancaire</option>
+                                    <option value="cheque">Chèque</option>
+                                    {% if association.plan == 'gold' %}
+                                    <option value="en_ligne">Paiement en ligne</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Date de Paiement *</label>
+                                <input type="date" name="date_paiement" class="form-control"
+                                       value="{% now 'Y-m-d' %}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Référence (optionnel)</label>
+                                <input type="text" name="reference" class="form-control"
+                                       placeholder="N° chèque, référence virement...">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Notes (optionnel)</label>
+                                <textarea name="notes" class="form-control" rows="3"
+                                          placeholder="Informations complémentaires..."></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'associations:tableau_bord' %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-iltizam btn-lg">
+                                        <i class="fas fa-save me-2"></i>Enregistrer le Paiement
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

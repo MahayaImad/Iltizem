@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Connexion - Iltizam{% endblock %}
+
+{% block content %}
+<div class="container-fluid bg-primary py-5 hero-header mb-5">
+    <div class="row py-3">
+        <div class="col-12 text-center">
+            <h1 class="display-3 text-white animated zoomIn">Connexion</h1>
+            <a href="{% url 'home' %}" class="h4 text-white">Accueil</a>
+            <i class="far fa-circle text-white px-2"></i>
+            <a href="" class="h4 text-white">Connexion</a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
+    <div class="container py-5">
+        <div class="row g-5 justify-content-center">
+            <div class="col-lg-7">
+                <div class="section-title position-relative pb-3 mb-5">
+                    <h5 class="fw-bold text-primary text-uppercase">Accès Sécurisé</h5>
+                    <h1 class="mb-0">Connectez-vous à votre espace Iltizam</h1>
+                </div>
+                <p class="mb-4">
+                    Accédez à votre tableau de bord personnalisé pour gérer efficacement
+                    les cotisations et suivre l'activité de votre association ou consulter
+                    vos informations de résident.
+                </p>
+                <div class="row g-0 mb-3">
+                    <div class="col-sm-6 wow zoomIn" data-wow-delay="0.2s">
+                        <h5 class="mb-3">
+                            <i class="fa fa-check text-primary me-3"></i>Sécurité renforcée
+                        </h5>
+                        <h5 class="mb-3">
+                            <i class="fa fa-check text-primary me-3"></i>Interface intuitive
+                        </h5>
+                    </div>
+                    <div class="col-sm-6 wow zoomIn" data-wow-delay="0.4s">
+                        <h5 class="mb-3">
+                            <i class="fa fa-check text-primary me-3"></i>Données synchronisées
+                        </h5>
+                        <h5 class="mb-3">
+                            <i class="fa fa-check text-primary me-3"></i>Support 24/7
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mt-4">
+                    <a class="btn btn-outline-primary btn-square me-3" href="#">
+                        <i class="fab fa-facebook-f fw-normal"></i>
+                    </a>
+                    <a class="btn btn-outline-primary btn-square me-3" href="#">
+                        <i class="fab fa-twitter fw-normal"></i>
+                    </a>
+                    <a class="btn btn-outline-primary btn-square" href="#">
+                        <i class="fab fa-linkedin-in fw-normal"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="bg-primary rounded h-100 d-flex align-items-center p-5 wow zoomIn" data-wow-delay="0.9s">
+                    <form method="post" class="w-100">
+                        {% csrf_token %}
+                        <div class="text-center mb-4">
+                            <h3 class="text-white mb-0">Se Connecter</h3>
+                            <p class="text-light opacity-75">Accédez à votre espace</p>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" name="username" class="form-control bg-light border-0"
+                                           id="username" placeholder="Nom d'utilisateur"
+                                           style="height: 55px;" required>
+                                    <label for="username">Nom d'utilisateur</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="password" name="password" class="form-control bg-light border-0"
+                                           id="password" placeholder="Mot de passe"
+                                           style="height: 55px;" required>
+                                    <label for="password">Mot de passe</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input bg-light border-0" type="checkbox"
+                                           name="remember_me" id="remember">
+                                    <label class="form-check-label text-white" for="remember">
+                                        Se souvenir de moi
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-dark w-100 py-3" type="submit">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Se Connecter
+                                </button>
+                            </div>
+                            <div class="col-12 text-center">
+                                <a href="{% url 'accounts:forgot_password' %}" class="text-light">
+                                    Mot de passe oublié ?
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

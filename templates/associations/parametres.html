@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Paramètres - {{ association.nom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 mb-2">Paramètres de l'Association</h1>
+                <p class="text-muted">
+                    <i class="fas fa-cog me-2"></i>Configuration et gestion de {{ association.nom }}
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Informations Générales -->
+            <div class="col-lg-8">
+                <div class="stat-card p-4 mb-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-building text-primary me-2"></i>Informations Générales
+                    </h5>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Nom de l'association *</label>
+                                <input type="text" name="nom" class="form-control"
+                                       value="{{ association.nom }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Adresse *</label>
+                                <textarea name="adresse" class="form-control" rows="3" required>{{ association.adresse }}</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre de logements *</label>
+                                <input type="number" name="nombre_logements" class="form-control"
+                                       value="{{ association.nombre_logements }}" min="1" required>
+                                <div class="form-text">
+                                    Actuellement {{ association.logements.count }} logement(s) créé(s)
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Plan *</label>
+                                <select name="plan" class="form-select">
+                                    <option value="basique" {% if association.plan == 'basique' %}selected{% endif %}>Basique</option>
+                                    <option value="silver" {% if association.plan == 'silver' %}selected{% endif %}>Silver</option>
+                                    <option value="gold" {% if association.plan == 'gold' %}selected{% endif %}>Gold</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-iltizam">
+                                    <i class="fas fa-save me-2"></i>Mettre à jour
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Types de Cotisations -->
+                <div class="stat-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-money-bill-wave text-primary me-2"></i>Types de Cotisations
+                        </h5>
+                        <a href="{% url 'cotisations:nouveau_type' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>Nouveau Type
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Montant</th>
+                                    <th>Périodicité</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type_cotisation in association.types_cotisations.all %}
+                                <tr>
+                                    <td><strong>{{ type_cotisation.nom }}</strong></td>
+                                    <td>{{ type_cotisation.montant|floatformat:0 }} DA</td>
+                                    <td>{{ type_cotisation.get_periodicite_display }}</td>
+                                    <td>
+                                        {% if type_cotisation.actif %}
+                                            <span class="badge bg-success">Actif</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'cotisations:modifier_type' type_cotisation.id %}"
+                                               class="btn btn-outline-primary" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if type_cotisation.actif %}
+                                            <a href="{% url 'cotisations:desactiver_type' type_cotisation.id %}"
+                                               class="btn btn-outline-warning" title="Désactiver">
+                                                <i class="fas fa-pause"></i>
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'cotisations:activer_type' type_cotisation.id %}"
+                                               class="btn btn-outline-success" title="Activer">
+                                                <i class="fas fa-play"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-3 text-muted">
+                                        Aucun type de cotisation configuré
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations du Plan et Actions -->
+            <div class="col-lg-4">
+                <!-- Informations du Plan -->
+                <div class="stat-card p-4 mb-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-crown text-warning me-2"></i>Plan Actuel
+                    </h5>
+
+                    <div class="text-center mb-3">
+                        <h3 class="text-primary">Plan {{ association.get_plan_display }}</h3>
+                        {% if association.plan == 'basique' %}
+                            <p class="text-muted">Gratuit</p>
+                        {% elif association.plan == 'silver' %}
+                            <p class="text-muted">2500 DA/mois</p>
+                        {% else %}
+                            <p class="text-muted">5000 DA/mois</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Fonctionnalités du plan -->
+                    <div class="mb-3">
+                        <h6 class="text-primary mb-2">Fonctionnalités incluses :</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="fas fa-check text-success me-2"></i>Gestion des cotisations</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Enregistrement des paiements</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Notifications email</li>
+                            {% if association.plan != 'basique' %}
+                            <li><i class="fas fa-check text-success me-2"></i>Notifications SMS</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Gestion des dépenses</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Export PDF/Excel</li>
+                            {% endif %}
+                            {% if association.plan == 'gold' %}
+                            <li><i class="fas fa-check text-success me-2"></i>Paiement en ligne</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Module sondages</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Statistiques avancées</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    {% if association.plan != 'gold' %}
+                    <a href="#" class="btn btn-warning w-100">
+                        <i class="fas fa-arrow-up me-2"></i>Upgrader le Plan
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Statistiques Rapides -->
+                <div class="stat-card p-4 mb-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Statistiques
+                    </h5>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Logements créés</small>
+                            <strong>{{ association.logements.count }}/{{ association.nombre_logements }}</strong>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-primary" style="width: {{ association.logements.count|mul:100|div:association.nombre_logements }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Logements occupés</small>
+                            <strong>{{ association.logements_occupes }}/{{ association.logements.count }}</strong>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: {% if association.logements.count > 0 %}{{ association.logements_occupes|mul:100|div:association.logements.count }}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary mb-0">{{ association.total_cotisations }}</h4>
+                            <small class="text-muted">Cotisations</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success mb-0">{{ association.total_paiements }}</h4>
+                            <small class="text-muted">Paiements</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Rapides -->
+                <div class="stat-card p-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-tools text-primary me-2"></i>Actions Rapides
+                    </h5>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'associations:export_donnees' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-download me-2"></i>Exporter les données
+                        </a>
+                        <a href="{% url 'notifications:test_email' %}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-envelope me-2"></i>Tester les emails
+                        </a>
+                        <a href="{% url 'associations:sauvegarde' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-save me-2"></i>Sauvegarde
+                        </a>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Association créée le {{ association.date_creation|date:"d/m/Y" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

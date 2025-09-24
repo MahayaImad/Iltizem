@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Générer Cotisations - {{ association.nom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="stat-card p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="display-6 text-primary">
+                            <i class="fas fa-plus-circle me-3"></i>Générer des Cotisations
+                        </h2>
+                        <p class="text-muted">Créer automatiquement les cotisations pour une période donnée</p>
+                    </div>
+
+                    <!-- Informations préalables -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h4 class="text-primary">{{ association.logements.count }}</h4>
+                                <small class="text-muted">Logements</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h4 class="text-success">{{ association.types_cotisations.filter.actif.count }}</h4>
+                                <small class="text-muted">Types actifs</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <h4 class="text-info">{{ estimation_total }}</h4>
+                                <small class="text-muted">Cotisations à créer</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="wow fadeInUp" data-wow-delay="0.1s">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Type de cotisation *</label>
+                                <select name="type_cotisation" class="form-select" required onchange="updateEstimation()">
+                                    <option value="">Sélectionnez un type</option>
+                                    {% for type_cot in types_cotisations %}
+                                    <option value="{{ type_cot.id }}"
+                                            data-montant="{{ type_cot.montant }}"
+                                            data-periodicite="{{ type_cot.periodicite }}">
+                                        {{ type_cot.nom }} - {{ type_cot.montant|floatformat:0 }} DA ({{ type_cot.get_periodicite_display }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Période *</label>
+                                <input type="date" name="periode" class="form-control"
+                                       value="{% now 'Y-m-d' %}" required onchange="updateEstimation()">
+                                <div class="form-text">
+                                    Date de début de la période de cotisation
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Logements concernés</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="logements_option"
+                                                   id="tous_logements" value="tous" checked onchange="toggleLogements()">
+                                            <label class="form-check-label" for="tous_logements">
+                                                Tous les logements ({{ association.logements.count }})
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="logements_option"
+                                                   id="logements_occupes" value="occupes" onchange="toggleLogements()">
+                                            <label class="form-check-label" for="logements_occupes">
+                                                Seulement les logements occupés ({{ association.logements.filter.resident__isnull=False.count }})
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sélection spécifique (masquée par défaut) -->
+                                <div id="logements_specifiques" class="mt-3" style="display: none;">
+                                    <label class="form-label">Sélectionner des logements spécifiques</label>
+                                    <div class="row">
+                                        {% for logement in association.logements.all %}
+                                        <div class="col-md-4 col-sm-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="logements_ids"
+                                                       value="{{ logement.id }}" id="logement_{{ logement.id }}">
+                                                <label class="form-check-label" for="logement_{{ logement.id }}">
+                                                    {{ logement.numero }}
+                                                    {% if logement.resident %}
+                                                    <small class="text-success">(occupé)</small>
+                                                    {% else %}
+                                                    <small class="text-muted">(libre)</small>
+                                                    {% endif %}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Récapitulatif en temps réel -->
+                            <div class="col-12">
+                                <div class="alert alert-info" id="estimation_recap">
+                                    <h6 class="mb-2"><i class="fas fa-calculator me-2"></i>Estimation</h6>
+                                    <p class="mb-0" id="estimation_text">
+                                        Sélectionnez un type de cotisation pour voir l'estimation
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="confirmation" required>
+                                    <label class="form-check-label" for="confirmation">
+                                        Je confirme vouloir générer ces cotisations.
+                                        <strong>Cette action ne peut pas être annulée.</strong>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'cotisations:liste' %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-iltizam btn-lg" id="btn_generer" disabled>
+                                        <i class="fas fa-cog me-2"></i>Générer les Cotisations
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let totalLogements = {{ association.logements.count }};
+let logementsOccupes = {{ association.logements.filter.resident__isnull=False.count }};
+
+function toggleLogements() {
+    const option = document.querySelector('input[name="logements_option"]:checked').value;
+    const specifiques = document.getElementById('logements_specifiques');
+
+    if (option === 'specifiques') {
+        specifiques.style.display = 'block';
+    } else {
+        specifiques.style.display = 'none';
+    }
+
+    updateEstimation();
+}
+
+function updateEstimation() {
+    const typeSelect = document.querySelector('select[name="type_cotisation"]');
+    const periodeInput = document.querySelector('input[name="periode"]');
+    const logementsOption = document.querySelector('input[name="logements_option"]:checked');
+    const confirmationCheck = document.getElementById('confirmation');
+    const btnGenerer = document.getElementById('btn_generer');
+    const estimationText = document.getElementById('estimation_text');
+
+    if (!typeSelect.value || !periodeInput.value) {
+        estimationText.textContent = 'Sélectionnez un type de cotisation et une période';
+        btnGenerer.disabled = true;
+        return;
+    }
+
+    const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+    const montant = parseFloat(selectedOption.dataset.montant);
+    const periodicite = selectedOption.dataset.periodicite;
+
+    let nombreLogements = 0;
+    if (logementsOption.value === 'tous') {
+        nombreLogements = totalLogements;
+    } else if (logementsOption.value === 'occupes') {
+        nombreLogements = logementsOccupes;
+    } else {
+        const checkedBoxes = document.querySelectorAll('input[name="logements_ids"]:checked');
+        nombreLogements = checkedBoxes.length;
+    }
+
+    const montantTotal = montant * nombreLogements;
+
+    estimationText.innerHTML = `
+        <strong>${nombreLogements}</strong> cotisation(s) de <strong>${montant.toLocaleString()} DA</strong> chacune<br>
+        <strong>Total : ${montantTotal.toLocaleString()} DA</strong> pour la période ${periodicite}
+    `;
+
+    // Activer le bouton seulement si tout est rempli et confirmé
+    btnGenerer.disabled = !(typeSelect.value && periodeInput.value && confirmationCheck.checked && nombreLogements > 0);
+}
+
+document.getElementById('confirmation').addEventListener('change', updateEstimation);
+document.addEventListener('DOMContentLoaded', updateEstimation);
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nouveau Logement - {{ association.nom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="stat-card p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="display-6 text-primary">
+                            <i class="fas fa-home me-3"></i>Nouveau Logement
+                        </h2>
+                        <p class="text-muted">Ajouter un logement à {{ association.nom }}</p>
+                    </div>
+
+                    <form method="post" class="wow fadeInUp" data-wow-delay="0.1s">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Numéro du logement *</label>
+                                <input type="text" name="numero" class="form-control"
+                                       placeholder="Ex: A101, B205, Villa 15" required>
+                                <div class="form-text">Format libre : lettres et chiffres</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Superficie (m²)</label>
+                                <input type="number" name="superficie" class="form-control"
+                                       step="0.01" min="0" placeholder="75.5">
+                                <div class="form-text">Optionnel</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Résident</label>
+                                <select name="resident" class="form-select">
+                                    <option value="">Aucun résident (logement libre)</option>
+                                    {% for resident in residents_disponibles %}
+                                    <option value="{{ resident.id }}">
+                                        {{ resident.get_full_name|default:resident.username }}
+                                        {% if resident.email %} - {{ resident.email }}{% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">
+                                    Vous pourrez assigner un résident plus tard
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>À savoir :</strong> Une fois créé, le logement apparaîtra dans la liste
+                                    et pourra recevoir des cotisations. Les résidents peuvent être assignés à tout moment.
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'associations:logements' %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-iltizam btn-lg">
+                                        <i class="fas fa-save me-2"></i>Créer le Logement
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}">

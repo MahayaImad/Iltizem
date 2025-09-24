@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load residents_extras %}
+
+{% block title %}Cotisations - {{ association.nom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-5 mb-2">Gestion des Cotisations</h1>
+                        <p class="text-muted">
+                            <i class="fas fa-building me-2"></i>{{ association.nom }}
+                            <span class="badge bg-secondary ms-2">{{ cotisations.count }} cotisations</span>
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'cotisations:generer' %}" class="btn btn-iltizam">
+                            <i class="fas fa-plus me-1"></i>Générer Cotisations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center border-start border-success border-4">
+                    <h4 class="text-success mb-1">{{ stats.payees }}</h4>
+                    <small class="text-muted">Payées</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center border-start border-warning border-4">
+                    <h4 class="text-warning mb-1">{{ stats.dues }}</h4>
+                    <small class="text-muted">En attente</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center border-start border-danger border-4">
+                    <h4 class="text-danger mb-1">{{ stats.retard }}</h4>
+                    <small class="text-muted">En retard</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-3 text-center border-start border-primary border-4">
+                    <h4 class="text-primary mb-1">{{ stats.taux_recouvrement }}%</h4>
+                    <small class="text-muted">Taux de recouvrement</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et Recherche -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="stat-card p-4">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Statut</label>
+                            <select name="statut" class="form-select">
+                                <option value="">Tous les statuts</option>
+                                <option value="due" {% if request.GET.statut == 'due' %}selected{% endif %}>Due</option>
+                                <option value="payee" {% if request.GET.statut == 'payee' %}selected{% endif %}>Payée</option>
+                                <option value="retard" {% if request.GET.statut == 'retard' %}selected{% endif %}>En retard</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Logement</label>
+                            <input type="text" name="logement" class="form-control"
+                                   placeholder="N° logement" value="{{ request.GET.logement }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Période</label>
+                            <input type="month" name="periode" class="form-control"
+                                   value="{{ request.GET.periode }}">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>Filtrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des Cotisations -->
+        <div class="row">
+            <div class="col-12">
+                <div class="stat-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-money-bill text-primary me-2"></i>
+                            Liste des Cotisations ({{ cotisations.count }})
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'cotisations:export_excel' %}" class="btn btn-outline-success">
+                                <i class="fas fa-file-excel me-1"></i>Excel
+                            </a>
+                            <a href="{% url 'cotisations:export_pdf' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-file-pdf me-1"></i>PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Logement</th>
+                                    <th>Résident</th>
+                                    <th>Type</th>
+                                    <th>Période</th>
+                                    <th>Montant</th>
+                                    <th>Échéance</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cotisation in cotisations %}
+                                <tr {% if cotisation.statut == 'retard' %}class="table-warning"{% endif %}>
+                                    <td>
+                                        <strong class="text-primary">{{ cotisation.logement.numero }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if cotisation.logement.resident %}
+                                            {{ cotisation.logement.resident.get_full_name|default:cotisation.logement.resident.username }}
+                                        {% else %}
+                                            <span class="text-muted">Non assigné</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ cotisation.type_cotisation.nom }}</small>
+                                        <br><span class="badge bg-light text-dark">{{ cotisation.type_cotisation.get_periodicite_display }}</span>
+                                    </td>
+                                    <td>{{ cotisation.periode|date:"M Y" }}</td>
+                                    <td>
+                                        <strong>{{ cotisation.montant|format_montant }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="{% if cotisation.statut == 'retard' %}text-danger fw-bold{% endif %}">
+                                            {{ cotisation.date_echeance|date:"d/m/Y" }}
+                                        </span>
+                                        {% if cotisation.statut == 'retard' %}
+                                        <br><small class="text-danger">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            {{ cotisation.date_echeance|jours_depuis_echeance }} jour(s) de retard
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ cotisation.statut|statut_badge }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            {% if cotisation.statut != 'payee' %}
+                                            <a href="{% url 'paiements:enregistrer' cotisation.id %}"
+                                               class="btn btn-outline-success" title="Enregistrer paiement">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'paiements:details' cotisation.paiement.id %}"
+                                               class="btn btn-outline-info" title="Voir paiement">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% endif %}
+                                            <a href="{% url 'cotisations:details' cotisation.id %}"
+                                               class="btn btn-outline-primary" title="Détails">
+                                                <i class="fas fa-info"></i>
+                                            </a>
+                                            {% if cotisation.statut == 'retard' %}
+                                            <a href="{% url 'notifications:rappel_individuel' cotisation.id %}"
+                                               class="btn btn-outline-warning" title="Envoyer rappel">
+                                                <i class="fas fa-bell"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="fas fa-money-bill fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">Aucune cotisation trouvée</h5>
+                                        <p class="text-muted">Générez vos premières cotisations pour commencer</p>
+                                        <a href="{% url 'cotisations:generer' %}" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Générer des cotisations
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if cotisations.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if cotisations.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ cotisations.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    Précédent
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in cotisations.paginator.page_range %}
+                            {% if cotisations.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > cotisations.number|add:'-3' and num < cotisations.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if cotisations.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ cotisations.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    Suivant
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

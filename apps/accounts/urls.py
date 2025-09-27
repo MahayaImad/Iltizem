@@ -10,6 +10,9 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/', views.dashboard_redirect, name='dashboard'),
 
+    # Dashboards spécialisés
+    path('super-admin/', views.super_admin_dashboard, name='super_admin_dashboard'),  # ✅ AJOUTÉ
+
     # Profil utilisateur
     path('profile/', views.profile_view, name='profile'),
     path('change-password/', views.change_password_view, name='change_password'),

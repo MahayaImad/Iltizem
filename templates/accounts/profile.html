@@ -1,144 +1,147 @@
-{% extends 'base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - iltizem</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'accounts:dashboard' %}">
+                <strong>iltizem</strong>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="nav-text text-white me-3">{{ user.get_full_name|default:user.username }}</span>
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-outline-light btn-sm">Déconnexion</a>
+            </div>
+        </div>
+    </nav>
 
-{% block title %}Mon Profil - {{ user.get_full_name|default:user.username }}{% endblock %}
-
-{% block content %}
-<div class="container-fluid py-5">
-    <div class="container">
-        <!-- Header -->
-        <div class="row mb-4">
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="display-5 mb-2">Mon Profil</h1>
-                        <p class="text-muted">
-                            <i class="fas fa-user me-2"></i>{{ user.get_role_display }}
-                            <span class="badge bg-primary ms-2">{{ user.username }}</span>
-                        </p>
-                    </div>
-                    <div>
-                        <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary me-2">
-                            <i class="fas fa-key me-1"></i>Changer mot de passe
-                        </a>
-                    </div>
-                </div>
+                <h1 class="h3 mb-4">Mon Profil</h1>
+                
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row">
             <!-- Formulaire de profil -->
             <div class="col-lg-8">
-                <div class="stat-card p-4">
-                    <h5 class="mb-4">
-                        <i class="fas fa-user-edit text-primary me-2"></i>Informations Personnelles
-                    </h5>
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Prénom</label>
-                                <input type="text" name="first_name" class="form-control"
-                                       value="{{ user.first_name }}" placeholder="Votre prénom">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informations Personnelles</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Prénom</label>
+                                    <input type="text" name="first_name" class="form-control" 
+                                           value="{{ user.first_name }}" placeholder="Votre prénom">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Nom</label>
+                                    <input type="text" name="last_name" class="form-control" 
+                                           value="{{ user.last_name }}" placeholder="Votre nom">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" 
+                                           value="{{ user.email }}" placeholder="votre@email.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Téléphone</label>
+                                    <input type="tel" name="telephone" class="form-control" 
+                                           value="{{ user.telephone }}" placeholder="0XXXXXXXXX">
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>Enregistrer les modifications
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Nom</label>
-                                <input type="text" name="last_name" class="form-control"
-                                       value="{{ user.last_name }}" placeholder="Votre nom">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control"
-                                       value="{{ user.email }}" placeholder="votre@email.com">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Téléphone</label>
-                                <input type="tel" name="telephone" class="form-control"
-                                       value="{{ user.telephone }}" placeholder="+213XXXXXXXX">
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-iltizem">
-                                    <i class="fas fa-save me-2"></i>Mettre à jour
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
 
             <!-- Informations du compte -->
             <div class="col-lg-4">
-                <div class="stat-card p-4 h-100">
-                    <h5 class="mb-4">
-                        <i class="fas fa-info-circle text-primary me-2"></i>Informations du Compte
-                    </h5>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informations du Compte</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">Nom d'utilisateur</small>
+                            <p class="mb-0 fw-bold">{{ user.username }}</p>
+                        </div>
 
-                    <div class="mb-3">
-                        <small class="text-muted">Nom d'utilisateur</small>
-                        <p class="mb-0 fw-bold">{{ user.username }}</p>
-                    </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Rôle</small>
+                            <p class="mb-0">
+                                <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                            </p>
+                        </div>
 
-                    <div class="mb-3">
-                        <small class="text-muted">Rôle</small>
-                        <p class="mb-0">
-                            <span class="badge bg-primary">{{ user.get_role_display }}</span>
-                        </p>
-                    </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Membre depuis</small>
+                            <p class="mb-0">{{ user.date_joined|date:"d/m/Y" }}</p>
+                        </div>
 
-                    <div class="mb-3">
-                        <small class="text-muted">Membre depuis</small>
-                        <p class="mb-0">{{ user.date_joined|date:"d/m/Y" }}</p>
-                    </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Dernière connexion</small>
+                            <p class="mb-0">
+                                {% if user.last_login %}
+                                    {{ user.last_login|date:"d/m/Y à H:i" }}
+                                {% else %}
+                                    Première connexion
+                                {% endif %}
+                            </p>
+                        </div>
 
-                    <div class="mb-3">
-                        <small class="text-muted">Dernière connexion</small>
-                        <p class="mb-0">
-                            {% if user.last_login %}
-                                {{ user.last_login|date:"d/m/Y à H:i" }}
-                            {% else %}
-                                Première connexion
-                            {% endif %}
-                        </p>
-                    </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Statut du compte</small>
+                            <p class="mb-0">
+                                {% if user.is_active %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactif</span>
+                                {% endif %}
+                            </p>
+                        </div>
 
-                    <div class="mb-3">
-                        <small class="text-muted">Statut du compte</small>
-                        <p class="mb-0">
-                            {% if user.is_active %}
-                                <span class="badge bg-success">Actif</span>
-                            {% else %}
-                                <span class="badge bg-danger">Inactif</span>
-                            {% endif %}
-                        </p>
-                    </div>
+                        <hr>
 
-                    {% if user.role == 'resident' %}
-                    <hr>
-                    <div class="mb-3">
-                        <small class="text-muted">Logement assigné</small>
-                        {% if user.logement.first %}
-                            <p class="mb-0 fw-bold">{{ user.logement.first.numero }}</p>
-                            <small class="text-muted">{{ user.logement.first.association.nom }}</small>
-                        {% else %}
-                            <p class="mb-0 text-warning">Aucun logement assigné</p>
-                        {% endif %}
+                        <div class="d-grid">
+                            <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-key me-1"></i>Changer mot de passe
+                            </a>
+                        </div>
                     </div>
-                    {% elif user.role == 'admin_association' %}
-                    <hr>
-                    <div class="mb-3">
-                        <small class="text-muted">Association gérée</small>
-                        {% if user.association_administree.first %}
-                            <p class="mb-0 fw-bold">{{ user.association_administree.first.nom }}</p>
-                            <small class="text-muted">Plan {{ user.association_administree.first.get_plan_display }}</small>
-                        {% else %}
-                            <p class="mb-0 text-warning">Aucune association assignée</p>
-                        {% endif %}
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

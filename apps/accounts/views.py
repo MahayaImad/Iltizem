@@ -10,14 +10,14 @@ from datetime import date
 def home_view(request):
     """Page d'accueil - Redirection selon l'authentification"""
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('accounts:dashboard')  # ✅ CORRIGÉ: était 'dashboard'
     return redirect('accounts:login')
 
 
 def login_view(request):
     """Connexion simple et efficace"""
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('accounts:dashboard')  # ✅ CORRIGÉ: était 'dashboard'
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -37,9 +37,9 @@ def login_view(request):
                 if user.role == 'super_admin':
                     return redirect('admin:index')
                 elif user.role == 'admin_association':
-                    return redirect('associations:tableau_bord')
+                    return redirect('associations:tableau_bord_association')  # ✅ CORRIGÉ
                 else:  # resident
-                    return redirect('residents:tableau_bord')
+                    return redirect('residents:tableau_bord')  # ✅ CORRIGÉ
             else:
                 messages.error(request, "Votre compte est désactivé. Contactez l'administrateur.")
         else:
@@ -64,9 +64,9 @@ def dashboard_redirect(request):
     if user.role == 'super_admin':
         return redirect('admin:index')
     elif user.role == 'admin_association':
-        return redirect('associations:tableau_bord')
+        return redirect('associations:tableau_bord_association')  # ✅ CORRIGÉ
     elif user.role == 'resident':
-        return redirect('residents:tableau_bord')
+        return redirect('residents:tableau_bord')  # ✅ CORRIGÉ
     else:
         messages.error(request, "Rôle non reconnu. Contactez l'administrateur.")
         return redirect('accounts:login')
@@ -109,72 +109,76 @@ def change_password_view(request):
         confirm_password = request.POST.get('confirm_password')
 
         # Vérifications
+        if not current_password or not new_password or not confirm_password:
+            messages.error(request, "Veuillez remplir tous les champs")
+            return render(request, 'accounts/change_password.html')
+
+        if new_password != confirm_password:
+            messages.error(request, "Les nouveaux mots de passe ne correspondent pas")
+            return render(request, 'accounts/change_password.html')
+
+        if len(new_password) < 6:
+            messages.error(request, "Le mot de passe doit contenir au moins 6 caractères")
+            return render(request, 'accounts/change_password.html')
+
+        # Vérifier l'ancien mot de passe
         if not request.user.check_password(current_password):
             messages.error(request, "Mot de passe actuel incorrect")
             return render(request, 'accounts/change_password.html')
 
-        if len(new_password) < 8:
-            messages.error(request, "Le nouveau mot de passe doit contenir au moins 8 caractères")
-            return render(request, 'accounts/change_password.html')
-
-        if new_password != confirm_password:
-            messages.error(request, "Les mots de passe ne correspondent pas")
-            return render(request, 'accounts/change_password.html')
-
-        # Mise à jour
+        # Changer le mot de passe
         request.user.set_password(new_password)
         request.user.save()
 
-        # Reconnecter l'utilisateur
-        user = authenticate(username=request.user.username, password=new_password)
-        login(request, user)
-
-        messages.success(request, "Mot de passe mis à jour avec succès")
-        return redirect('accounts:profile')
+        messages.success(request, "Mot de passe changé avec succès")
+        return redirect('accounts:login')
 
     return render(request, 'accounts/change_password.html')
 
 
 @login_required
 def user_info_api(request):
-    """API pour informations utilisateur (pour JS)"""
-    if request.method == 'GET':
-        user = request.user
-        data = {
-            'username': user.username,
-            'full_name': user.get_full_name(),
-            'email': user.email,
-            'role': user.role,
-            'is_active': user.is_active,
-            'date_joined': user.date_joined.strftime('%d/%m/%Y'),
-            'last_login': user.last_login.strftime('%d/%m/%Y à %H:%M') if user.last_login else None
-        }
+    """API pour récupérer les informations utilisateur"""
+    user = request.user
+    return JsonResponse({
+        'username': user.username,
+        'full_name': user.get_full_name() or user.username,
+        'email': user.email,
+        'role': user.get_role_display(),
+        'last_login': user.last_login.strftime('%d/%m/%Y à %H:%M') if user.last_login else 'Jamais',
+        'date_joined': user.date_joined.strftime('%d/%m/%Y'),
+    })
 
-        # Informations spécifiques selon le rôle
-        if user.role == 'resident':
-            try:
-                from apps.associations.models import Logement
-                logement = Logement.objects.get(resident=user)
-                data['logement'] = {
-                    'numero': logement.numero,
-                    'association': logement.association.nom,
-                    'type': logement.type
-                }
-            except Logement.DoesNotExist:
-                data['logement'] = None
 
-        elif user.role == 'admin_association':
-            try:
-                from apps.associations.models import Association
-                association = Association.objects.get(admin_principal=user)
-                data['association'] = {
-                    'nom': association.nom,
-                    'adresse': association.adresse,
-                    'total_logements': association.logements.count()
-                }
-            except Association.DoesNotExist:
-                data['association'] = None
+@login_required
+def super_admin_dashboard(request):
+    """Dashboard pour les super admins - Simple et efficace"""
+    if request.user.role != 'super_admin':
+        messages.error(request, "Accès refusé.")
+        return redirect('accounts:login')
 
-        return JsonResponse(data)
+    # Statistiques de base pour le super admin
+    from django.contrib.auth import get_user_model
 
-    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+    User = get_user_model()
+    stats = {
+        'total_users': User.objects.count(),
+        'total_admins': User.objects.filter(role='admin_association').count(),
+        'total_residents': User.objects.filter(role='resident').count(),
+        'users_actifs': User.objects.filter(is_active=True).count(),
+    }
+
+    # Ajouter les stats des associations si le modèle existe
+    try:
+        from apps.associations.models import Association
+        stats['total_associations'] = Association.objects.count()
+        stats['associations_actives'] = Association.objects.filter(actif=True).count()
+    except ImportError:
+        pass
+
+    context = {
+        'stats': stats,
+        'title': 'Dashboard Super Admin',
+    }
+
+    return render(request, 'accounts/super_admin_dashboard.html', context)
